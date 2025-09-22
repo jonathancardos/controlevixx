@@ -8,13 +8,14 @@ import { AuthPage } from "@/components/auth/AuthPage";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { PublicOrderView } from "./pages/PublicOrderView";
-import { ThemeProvider } from "@/components/theme/ThemeProvider"; // New import
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ActiveOrdersProvider } from "@/contexts/ActiveOrdersContext";
+import { Layout } from "@/components/layout/Layout"; // Importar o novo Layout
 
 const queryClient = new QueryClient();
 
 function AppContent() {
-  const { isAuthenticated, usuario, logout, login } = useAuth(); // <-- 'login' desestruturado aqui
+  const { isAuthenticated, usuario, logout, login } = useAuth();
 
   if (!isAuthenticated || !usuario) {
     return <AuthPage onLogin={login} />;
@@ -22,12 +23,16 @@ function AppContent() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index user={usuario} onLogout={logout} />} />
-        <Route path="/public-order/:id" element={<PublicOrderView />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Layout user={usuario} onLogout={logout}>
+        {(activeTab) => ( // Render prop para passar o activeTab
+          <Routes>
+            <Route path="/" element={<Index user={usuario} onLogout={logout} activeTab={activeTab} />} />
+            <Route path="/public-order/:id" element={<PublicOrderView />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        )}
+      </Layout>
     </BrowserRouter>
   );
 }
@@ -38,7 +43,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="vixxe-theme"> {/* Add ThemeProvider */}
+        <ThemeProvider defaultTheme="dark" storageKey="vixxe-theme">
           <ActiveOrdersProvider>
             <AppContent />
           </ActiveOrdersProvider>

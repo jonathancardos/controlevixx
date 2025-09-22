@@ -2,12 +2,12 @@ import { useState } from "react";
 import { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TabId } from "@/types/dashboard";
-import { Download, MessageSquare, TrendingUp, BarChart3, Clock, Users, Star, Home, Settings, Package, CreditCard, LogOut, DollarSign, ShoppingCart, Bot, UserCircle } from "lucide-react"; // Importar LogOut, DollarSign, ShoppingCart e UserCircle
+import { Download, MessageSquare, TrendingUp, BarChart3, Clock, Users, Star, Home, Settings, Package, CreditCard, LogOut, DollarSign, ShoppingCart, Bot, UserCircle, Menu } from "lucide-react"; // Importar Menu
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"; // Novos imports
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // Novos imports
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface DashboardHeaderProps {
   activeTab: TabId;
@@ -17,8 +17,9 @@ interface DashboardHeaderProps {
   onDateRangeChange?: (range: DateRange | undefined) => void;
   allowedTabs?: TabId[];
   userRole: 'master' | 'admin' | 'gestor' | 'funcionario';
-  userName: string; // Adicionar userName
-  onLogout: () => void; // Adicionar onLogout
+  userName: string;
+  onLogout: () => void;
+  onToggleSidebar: () => void; // Nova prop para alternar o sidebar
 }
 
 // Definindo os estilos para cada aba
@@ -46,29 +47,25 @@ export function DashboardHeader({
   allowedTabs,
   userRole,
   userName,
-  onLogout
+  onLogout,
+  onToggleSidebar, // Recebe a função de toggle
 }: DashboardHeaderProps) {
   const isMobile = useIsMobile();
-  const [hoveredTabId, setHoveredTabId] = useState<TabId | null>(null);
-  const [mobileExpandedTabId, setMobileExpandedTabId] = useState<TabId | null>(null);
 
   const allTabs: Array<{ id: TabId; label: string; icon: LucideIcon; roles: string[] }> = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, roles: ['master', 'admin', 'gestor', 'funcionario'] },
-    { id: 'pdv', label: 'PDV', icon: ShoppingCart, roles: ['master', 'admin', 'gestor', 'funcionario'] }, // Nova aba PDV
-    { id: 'chat-generator', label: 'Chat Comanda', icon: Bot, roles: ['master', 'admin', 'gestor', 'funcionario'] }, // Nova aba Chat Generator
-    // As abas 'chat' e 'history' foram movidas para dentro do PDV
+    { id: 'pdv', label: 'PDV', icon: ShoppingCart, roles: ['master', 'admin', 'gestor', 'funcionario'] },
+    { id: 'chat-generator', label: 'Chat Comanda', icon: Bot, roles: ['master', 'admin', 'gestor', 'funcionario'] },
     { id: 'sales', label: 'Vendas', icon: TrendingUp, roles: ['master', 'admin', 'gestor'] },
     { id: 'insights', label: 'Insights', icon: BarChart3, roles: ['master', 'admin', 'gestor'] },
     { id: 'users', label: 'Usuários', icon: Users, roles: ['master', 'admin'] },
     { id: 'clients', label: 'Clientes', icon: Star, roles: ['master', 'admin', 'gestor'] },
     { id: 'inventory', label: userRole === 'funcionario' ? 'Solicitação' : 'Insumos', icon: Package, roles: ['master', 'funcionario'] },
-    { id: 'financial', label: 'Financeiro', icon: DollarSign, roles: ['master', 'funcionario'] }, // Adicionado financial
+    { id: 'financial', label: 'Financeiro', icon: DollarSign, roles: ['master', 'funcionario'] },
     { id: 'settings', label: 'Configurações', icon: Settings, roles: ['master', 'funcionario'] },
   ];
 
-  const tabs = allTabs.filter(tab => (allowedTabs ?? allTabs.map(t => t.id)).includes(tab.id));
-  const activeTabLabel = tabs.find(tab => tab.id === activeTab)?.label || 'Dashboard';
-
+  const activeTabLabel = allTabs.find(tab => tab.id === activeTab)?.label || 'Dashboard';
   const currentTabStyle = tabStyles[activeTab];
 
   return (
@@ -76,11 +73,15 @@ export function DashboardHeader({
       {/* Main Header */}
       <header className={cn(
         "flex flex-col lg:flex-row lg:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 rounded-xl transition-all duration-300 ease-in-out",
-        currentTabStyle.text, // Mantém a cor do texto para outros elementos
-        activeTab !== 'dashboard' && 'vixxe-shadow' // Adiciona sombra apenas para abas não-dashboard
+        currentTabStyle.text,
+        activeTab !== 'dashboard' && 'vixxe-shadow'
       )}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
-          {/* Título principal sempre com gradiente Vixxe Maria */}
+        <div className="flex items-center gap-3 md:gap-4">
+          {isMobile && (
+            <Button variant="ghost-sidebar" size="icon" onClick={onToggleSidebar} className="lg:hidden">
+              <Menu className="h-6 w-6" />
+            </Button>
+          )}
           <h1 className="text-4xl md:text-5xl font-extrabold vixxe-gradient bg-clip-text text-transparent">
             {activeTab === 'dashboard' ? 'Vixxe Maria' : activeTabLabel}
           </h1>
@@ -125,8 +126,8 @@ export function DashboardHeader({
         </DropdownMenu>
       </header>
 
-      {/* Navigation Tabs */}
-      <div className="flex gap-1 md:gap-2 overflow-x-auto pb-2 no-scrollbar bg-muted/50 rounded-xl p-1 shadow-inner"> {/* Adicionado styling aqui */}
+      {/* Navigation Tabs - REMOVIDO, agora no Sidebar */}
+      {/* <div className="flex gap-1 md:gap-2 overflow-x-auto pb-2 no-scrollbar bg-muted/50 rounded-xl p-1 shadow-inner">
         {tabs.map(({ id, label, icon: Icon }) => (
           <Button
             key={id}
@@ -160,7 +161,7 @@ export function DashboardHeader({
             </span>
           </Button>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }
