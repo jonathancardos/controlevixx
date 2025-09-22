@@ -28,12 +28,10 @@ import { PendingComandasFAB } from '@/components/comandas/PendingComandasFAB'; /
 interface VixxeDashboardProps {
   user: Usuario;
   onLogout: () => void;
-  activeTab: TabId; // Receber activeTab como prop
 }
 
-export function VixxeDashboard({ user, onLogout, activeTab }: VixxeDashboardProps) {
-  // activeTab agora é recebido via props do Layout
-  // const [activeTab, setActiveTab] = useState<TabId>('dashboard'); // Removido
+export function VixxeDashboard({ user, onLogout }: VixxeDashboardProps) {
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
 
   // Abas permitidas para o papel do usuário
   const allowedTabs: TabId[] = (() => {
@@ -51,14 +49,14 @@ export function VixxeDashboard({ user, onLogout, activeTab }: VixxeDashboardProp
     }
   })();
 
-  // Impede navegação para abas não permitidas - Lógica movida para Layout
-  // const safeSetActiveTab = (tab: TabId) => {
-  //   if (allowedTabs.includes(tab)) {
-  //     setActiveTab(tab);
-  //   } else {
-  //     setActiveTab('dashboard');
-  //   }
-  // };
+  // Impede navegação para abas não permitidas
+  const safeSetActiveTab = (tab: TabId) => {
+    if (allowedTabs.includes(tab)) {
+      setActiveTab(tab);
+    } else {
+      setActiveTab('dashboard');
+    }
+  };
   const [dateRange, setDateRange] = useState<DateRange>();
   
   const { comandas } = useComandas();
@@ -110,17 +108,17 @@ export function VixxeDashboard({ user, onLogout, activeTab }: VixxeDashboardProp
   }, []);
 
   const handleNavigate = useCallback((section: string) => {
-    // setActiveTab(section as TabId); // Lógica de navegação movida para o Layout
+    setActiveTab(section as TabId);
   }, []);
 
   const [isPendingComandasFABSheetOpen, setIsPendingComandasFABSheetOpen] = useState(false);
 
   const handleOpenPendingComandas = useCallback(() => {
-    // safeSetActiveTab('pdv'); // Navega para a aba PDV - Lógica movida para o Layout
+    safeSetActiveTab('pdv'); // Navega para a aba PDV
     // Ativa a sub-aba de comandas ativas dentro do PDV
     // Isso será tratado pelo POSSystem, que receberá a prop para gerenciar a sub-aba
     setIsPendingComandasFABSheetOpen(true);
-  }, []);
+  }, [safeSetActiveTab]);
 
   const handleComandaUpdated = useCallback(() => {
     // Força o recarregamento das comandas no ComandaManagementTab
@@ -139,8 +137,7 @@ export function VixxeDashboard({ user, onLogout, activeTab }: VixxeDashboardProp
       <div className="absolute inset-0 bg-background/80 backdrop-blur-md" />
 
       <div className="container relative z-10 bg-card/90 border border-primary/20 vixxe-shadow rounded-xl p-4 md:p-6 my-6"> {/* Estilizado o contêiner principal */}
-        {/* DashboardHeader agora é renderizado no Layout e não aqui */}
-        {/* <DashboardHeader
+        <DashboardHeader
           activeTab={activeTab}
           onTabChange={safeSetActiveTab}
           onExportCSV={handleExportCSV}
@@ -150,7 +147,7 @@ export function VixxeDashboard({ user, onLogout, activeTab }: VixxeDashboardProp
           userRole={user.role as 'master' | 'admin' | 'gestor' | 'funcionario'}
           userName={user.nome_usuario}
           onLogout={onLogout}
-        /> */}
+        />
 
         <main className="space-y-4 md:space-y-6">
           {/* Responsive Layout - Single column for better mobile experience */}

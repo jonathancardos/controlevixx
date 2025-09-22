@@ -118,10 +118,7 @@ export function ComandaChatGenerator() {
         const parsed = JSON.parse(jsonMatch[1]);
         // Basic validation for new required fields
         if (parsed.client && parsed.orderNumber && parsed.date && parsed.serviceType && parsed.items && Array.isArray(parsed.items) && parsed.total != null && parsed.paymentMethod && parsed.prepTimeMin != null && parsed.prepTimeMax != null) {
-          return {
-            ...parsed,
-            client: parsed.client || 'Cliente não informado', // Ensure client is always a string
-          };
+          return parsed;
         }
       }
     } catch (e) {

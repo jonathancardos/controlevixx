@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 no-underline", // Adicionado 'no-underline' aqui
   {
     variants: {
       variant: {
@@ -14,12 +14,9 @@ const buttonVariants = cva(
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
-        "ghost-sidebar": "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", // Novo variant
-        link: "text-primary underline-offset-4 hover:underline",
-        vixxe: "bg-vixxe-gradient text-white hover:opacity-90 transition-opacity duration-200",
-        "vixxe-tab": "bg-vixxe-gradient text-white shadow-md",
-        "sidebar-active": "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90",
-        "sidebar-ghost": "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline", 
+        vixxe: "bg-vixxe-gradient text-white hover:opacity-90 hover:shadow-lg",
+        "vixxe-tab": "bg-vixxe-gradient text-white shadow-md hover:opacity-90",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -45,7 +42,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
     );
   }
 );
