@@ -25,6 +25,7 @@ import { useComandas } from '@/hooks/useSupabase'; // Importar useComandas
 import { useAuth } from '@/components/auth/AuthProvider'; // Importar useAuth
 import { useComandaTemplates } from '@/hooks/useComandaTemplates'; // Importar useComandaTemplates
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ComandaTemplate } from './ComandaTemplate'; // Importar ComandaTemplate
 
 export interface ChatMessage {
   sender: 'user' | 'bot';

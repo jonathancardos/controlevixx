@@ -65,7 +65,7 @@ export function ComandaTemplate({ comanda, onEdit, onSendWhatsApp, templateStrin
     }
 
     const placeholders: { [key: string]: string } = {
-      '{{cliente}}': comanda.cliente_nome, // Alterado para comanda.cliente_nome
+      '{{cliente}}': comanda.cliente_nome || 'Cliente não informado', // Alterado para comanda.cliente_nome
       '{{orderNumber}}': comanda.orderNumber,
       '{{data}}': comanda.data,
       '{{serviceType}}': servicoTextMap[comanda.serviceType],
