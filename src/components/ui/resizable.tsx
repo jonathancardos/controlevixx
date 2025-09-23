@@ -1,37 +1,57 @@
-import { GripVertical } from "lucide-react";
-import * as ResizablePrimitive from "react-resizable-panels";
+"use client";
 
-import { cn } from "@/lib/utils";
+import React, { useState, useRef, useEffect } from 'react';
 
-const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
-  <ResizablePrimitive.PanelGroup
-    className={cn("flex h-full w-full data-[panel-group-direction=vertical]:flex-col", className)}
-    {...props}
-  />
-);
+interface ResizablePanelProps {
+  children: React.ReactNode;
+  initialSize?: number;
+  minSize?: number;
+  maxSize?: number;
+  direction?: 'horizontal' | 'vertical';
+}
 
-const ResizablePanel = ResizablePrimitive.Panel;
+const ResizablePanel = ({
+  children,
+  initialSize = 50,
+  minSize = 10,
+  maxSize = 90,
+  direction = 'horizontal',
+}: ResizablePanelProps) => {
+  const [size, setSize] = useState(initialSize);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const isHorizontal = direction === 'horizontal';
 
-const ResizableHandle = ({
-  withHandle,
-  className,
-  ...props
-}: React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
-  withHandle?: boolean;
-}) => (
-  <ResizablePrimitive.PanelResizeHandle
-    className={cn(
-      "relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 [&[data-panel-group-direction=vertical]>div]:rotate-90",
-      className,
-    )}
-    {...props}
-  >
-    {withHandle && (
-      <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
-        <GripVertical className="h-2.5 w-2.5" />
-      </div>
-    )}
-  </ResizablePrimitive.PanelResizeHandle>
-);
+  useEffect(() => {
+    const handleResize = () => {
+      if (panelRef.current) {
+        const panelSize = isHorizontal ? panelRef.current.offsetWidth : panelRef.current.offsetHeight;
+        const percentage = (panelSize / (isHorizontal ? window.innerWidth : window.innerHeight)) * 100;
+        setSize(percentage);
+      }
+    };
 
-export { ResizablePanelGroup, ResizablePanel, ResizableHandle };
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial size
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isHorizontal]);
+
+  const style: React.CSSProperties = {
+    flex: `1`,
+    width: isHorizontal ? `${size}vw` : '100%',
+    height: isHorizontal ? '100%' : `${size}vh`,
+    minWidth: isHorizontal ? `${minSize}vw` : undefined,
+    minHeight: isHorizontal ? undefined : `${minSize}vh`,
+    maxWidth: isHorizontal ? `${maxSize}vw` : undefined,
+    maxHeight: isHorizontal ? undefined : `${maxSize}vh`,
+    overflow: 'auto',
+  };
+
+  return (
+    <div ref={panelRef} style={style}>
+      {children}
+    </div>
+  );
+};
+
+export { ResizablePanel };
